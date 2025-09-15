@@ -3,3 +3,4 @@ time,name,sex,bd,height,weight,bmi,bmr,tdee,activity_level,height_unit,weight_un
 2025-09-15 16:40:15.648901,Star,Female,29:Apr:2005,160.0,58.0,22.66,1319.0,2275.28,active,cm,kg
 2025-09-15 16:42:42.851371,Star,Female,29:Apr:2005,164.592,64.41019313986084,23.78,1411.8,2435.36,active,ft,lbs
 2025-09-15 16:42:57.173666,Star,Female,29:Apr:2005,164.592,64.41019313986084,23.78,1411.8,2188.29,moderate,ft,lbs
+2025-09-15 17:15:58.075652,James,Male,14:Oct:2010,170.0,58.0,20.07,1572.5,2437.38,moderate,cm,kg

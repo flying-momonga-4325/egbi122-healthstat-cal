@@ -48,7 +48,6 @@ class HealthCalcTheme(Base):
         HEX_PRIMARY = "#3e6b3e"  # dark green
         HEX_SECONDARY = "#6cb49b"  # teal-green
         HEX_ACCENT = "#d9a441"  # gold
-        HEX_WARNING = "#b33a3a"  # red
         HEX_NEUTRAL = "#8c5e3c"  # brown
 
         # Only safe Seafoam snippet attributes
@@ -92,8 +91,15 @@ class AppUI:
 
     @staticmethod
     def _announcement(msg, success=True):
-        color_bg = "#e0ffe0" if success else "#ffe4e4"
-        color_text = "#006600" if success else "#b00020"
+        # Hex colors from HealthCalcTheme
+        HEX_SUCCESS_BG = "#6cb49b"  # teal-green background for success
+        HEX_SUCCESS_TEXT = "#FFFFFF"
+        HEX_ERROR_BG = "#d9a441"  # gold-ish background for error/warning
+        HEX_ERROR_TEXT = "#b33a3a"  # red text for error/warning
+
+        color_bg = HEX_SUCCESS_BG if success else HEX_ERROR_BG
+        color_text = HEX_SUCCESS_TEXT if success else HEX_ERROR_TEXT
+
         html_content = f"""
         <div id='popup-banner' style='
             position: fixed;
