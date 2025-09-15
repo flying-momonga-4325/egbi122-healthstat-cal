@@ -1,26 +1,33 @@
+from __future__ import annotations
 import gradio as gr
 from datetime import datetime
 import plotly.graph_objects as go
+from typing import Iterable
 from gradio.themes.base import Base
 from gradio.themes.utils import colors, fonts, sizes
 
 
-class Seafoam(Base):
+class HealthCalcTheme(Base):
+    """
+    Healthcare-friendly theme using exact hex colors.
+    Uses only the safe Seafoam snippet attributes.
+    """
+
     def __init__(
         self,
         *,
-        primary_hue: colors.Color | str = colors.emerald,
-        secondary_hue: colors.Color | str = colors.blue,
-        neutral_hue: colors.Color | str = colors.gray,
+        primary_hue: str = "green",  # placeholder for Base; hex used in set()
+        secondary_hue: str = "teal",  # placeholder
+        neutral_hue: str = "stone",  # placeholder
         spacing_size: sizes.Size | str = sizes.spacing_md,
         radius_size: sizes.Size | str = sizes.radius_md,
-        text_size: sizes.Size | str = sizes.text_lg,
-        font: fonts.Font | str | list = (
+        text_size: sizes.Size | str = sizes.text_md,
+        font: fonts.Font | str | Iterable[fonts.Font | str] = (
             fonts.GoogleFont("Quicksand"),
             "ui-sans-serif",
             "sans-serif",
         ),
-        font_mono: fonts.Font | str | list = (
+        font_mono: fonts.Font | str | Iterable[fonts.Font | str] = (
             fonts.GoogleFont("IBM Plex Mono"),
             "ui-monospace",
             "monospace",
@@ -37,8 +44,32 @@ class Seafoam(Base):
             font_mono=font_mono,
         )
 
+        # Exact hex colors for your palette
+        HEX_PRIMARY = "#3e6b3e"  # dark green
+        HEX_SECONDARY = "#6cb49b"  # teal-green
+        HEX_ACCENT = "#d9a441"  # gold
+        HEX_WARNING = "#b33a3a"  # red
+        HEX_NEUTRAL = "#8c5e3c"  # brown
 
-seafoam = Seafoam()
+        # Only safe Seafoam snippet attributes
+        super().set(
+            body_background_fill=f"linear-gradient(135deg, {HEX_PRIMARY}20, {HEX_SECONDARY}20)",  # subtle gradient
+            body_background_fill_dark=f"linear-gradient(135deg, {HEX_PRIMARY}90, {HEX_SECONDARY}80)",
+            button_primary_background_fill=f"linear-gradient(90deg, {HEX_PRIMARY}, {HEX_SECONDARY})",
+            button_primary_background_fill_hover=f"linear-gradient(90deg, {HEX_ACCENT}, {HEX_SECONDARY})",
+            button_primary_text_color="white",
+            button_primary_background_fill_dark=f"linear-gradient(90deg, {HEX_PRIMARY}, {HEX_NEUTRAL})",
+            slider_color=f"{HEX_SECONDARY}",
+            slider_color_dark=f"{HEX_ACCENT}",
+            block_title_text_weight="600",
+            block_border_width="3px",
+            block_shadow="*shadow_drop_lg",
+            button_primary_shadow="*shadow_drop_lg",
+            button_large_padding="32px",
+        )
+
+
+HCT = HealthCalcTheme()
 
 
 class AppUI:
@@ -211,7 +242,7 @@ class AppUI:
 
     # --- UI ---
     def build_ui(self):
-        with gr.Blocks(theme=seafoam) as demo:
+        with gr.Blocks(theme=HCT) as demo:
             # LOGIN PAGE
             with gr.Group(visible=True) as login_page:
                 login_name = gr.Textbox(label="Enter your name")
@@ -317,7 +348,7 @@ class AppUI:
                             ],
                             label="Activity Level",
                         )
-                        save_btn = gr.Button("💾 Save Info")
+                        save_btn = gr.Button("💾 Save Info", variant="primary")
                         popup_info = gr.HTML(value="", visible=False)
 
                         save_btn.click(
@@ -343,7 +374,7 @@ class AppUI:
                             ],
                         )
 
-                        logout_btn = gr.Button("🔄 Logout")
+                        logout_btn = gr.Button("🔄 Logout", variant="secondary")
                         logout_btn.click(
                             fn=self.logout_handler,
                             outputs=[login_page, app_page, login_name],
