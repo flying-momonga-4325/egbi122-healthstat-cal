@@ -15,7 +15,22 @@ class PersonalManager:
             df = pd.read_csv(self.file)
             user_df = df[df["name"] == user] if "name" in df.columns else df
             if not user_df.empty:
-                return user_df.iloc[-1].to_dict()
+                record = user_df.iloc[-1].to_dict()
+
+                # Convert height/weight to preferred unit for display
+                height_unit = record.get("height_unit", "cm")
+                weight_unit = record.get("weight_unit", "kg")
+                height = record.get("height", 0)
+                weight = record.get("weight", 0)
+
+                if height_unit == "ft":
+                    record["height"] = round(height / 30.48, 2)
+                if weight_unit == "lbs":
+                    record["weight"] = round(weight * 2.20462, 2)
+
+                record["height_unit"] = height_unit
+                record["weight_unit"] = weight_unit
+                return record
         return {}
 
     def save_info(
@@ -26,9 +41,19 @@ class PersonalManager:
         height: float,
         weight: float,
         activity_level: str,
+        height_unit="cm",
+        weight_unit="kg",
     ) -> tuple:
-        height = float(height) if height else 0
-        weight = float(weight) if weight else 0
+        # Convert input to cm/kg for storage
+        if height_unit == "ft":
+            height = float(height) * 30.48
+        else:
+            height = float(height)
+
+        if weight_unit == "lbs":
+            weight = float(weight) / 2.20462
+        else:
+            weight = float(weight)
 
         bmi = BMI.calculate(weight, height)
         bmr = BMR.calculate(weight, height, bd, sex) if height > 0 else 0
@@ -47,6 +72,8 @@ class PersonalManager:
                     "bmr": bmr,
                     "tdee": tdee,
                     "activity_level": activity_level,
+                    "height_unit": height_unit,
+                    "weight_unit": weight_unit,
                 }
             ]
         )

@@ -59,7 +59,6 @@ class AppUI:
         )
         return fig
 
-    # --- ANNOUNCEMENT ---
     @staticmethod
     def _announcement(msg, success=True):
         color_bg = "#e0ffe0" if success else "#ffe4e4"
@@ -95,6 +94,8 @@ class AppUI:
             sex_val = record.get("sex", "Male")
             height_val = record.get("height", 0)
             weight_val = record.get("weight", 0)
+            height_unit = record.get("height_unit", "cm")
+            weight_unit = record.get("weight_unit", "kg")
             activity_val = record.get("activity_level", "sedentary")
             reverse_map = {
                 "sedentary": "ออกกำลังกายน้อยมาก หรือไม่ออกเลย",
@@ -114,13 +115,15 @@ class AppUI:
                 bd_parts[2],
                 height_val,
                 weight_val,
+                height_unit,
+                weight_unit,
                 activity_val,
                 chart,
                 bmi,
                 bmr,
                 tdee,
-                gr.update(value="", visible=False),  # popup_food
-                gr.update(value="", visible=False),  # popup_info
+                gr.update(value="", visible=False),
+                gr.update(value="", visible=False),
             )
         else:
             return (
@@ -133,6 +136,8 @@ class AppUI:
                 str(datetime.now().year - 25),
                 0,
                 0,
+                "cm",
+                "kg",
                 "ออกกำลังกายน้อยมาก หรือไม่ออกเลย",
                 self._empty_chart(),
                 0,
@@ -144,7 +149,17 @@ class AppUI:
 
     # --- SAVE INFO ---
     def save_info_handler(
-        self, name, sex, bd_day, bd_month, bd_year, height, weight, activity
+        self,
+        name,
+        sex,
+        bd_day,
+        bd_month,
+        bd_year,
+        height,
+        weight,
+        height_unit,
+        weight_unit,
+        activity,
     ):
         bd = f"{bd_day}:{bd_month}:{bd_year}"
         activity_map = {
@@ -156,7 +171,7 @@ class AppUI:
         }
         activity_key = activity_map.get(activity, "sedentary")
         bmi, bmr, tdee = self.personal_manager.save_info(
-            name, sex, bd, height, weight, activity_key
+            name, sex, bd, height, weight, activity_key, height_unit, weight_unit
         )
         chart = self.chart_manager.build_last_7_days_chart(name)
         return (
@@ -219,6 +234,7 @@ class AppUI:
                             food_dropdown = gr.Dropdown(
                                 choices=self.food_manager.get_food_list(),
                                 label="Select Food",
+                                scale=3,
                             )
                             food_quantity = gr.Slider(
                                 minimum=1,
@@ -226,11 +242,11 @@ class AppUI:
                                 value=1,
                                 step=1,
                                 label="Quantity (times to add)",
+                                scale=2,
                             )
                         add_btn = gr.Button("Add Food", variant="primary")
-                        popup_food = gr.HTML(value="", visible=False)  # popup
+                        popup_food = gr.HTML(value="", visible=False)
 
-                        # Hook add_btn
                         add_btn.click(
                             fn=self.add_food_handler,
                             inputs=[name_box, food_dropdown, food_quantity],
@@ -242,8 +258,6 @@ class AppUI:
                                 tdee_out,
                             ],
                         )
-
-                        # Auto-hide popup after 2 seconds
                         popup_food.change(
                             fn=lambda x: gr.update(visible=False),
                             inputs=[popup_food],
@@ -278,8 +292,21 @@ class AppUI:
                         bd_day = gr.Dropdown(days, label="Day")
                         bd_month = gr.Dropdown(months, label="Month")
                         bd_year = gr.Dropdown(years, label="Year")
-                        height = gr.Number(label="Height (cm)")
-                        weight = gr.Number(label="Weight (kg)")
+
+                        # Height + Unit
+                        with gr.Row():
+                            height = gr.Number(label="Height", scale=2)
+                            height_unit = gr.Dropdown(
+                                choices=["cm", "ft"], label="Unit", value="cm", scale=0
+                            )
+
+                        # Weight + Unit
+                        with gr.Row():
+                            weight = gr.Number(label="Weight", scale=2)
+                            weight_unit = gr.Dropdown(
+                                choices=["kg", "lbs"], label="Unit", value="kg", scale=0
+                            )
+
                         activity = gr.Dropdown(
                             choices=[
                                 "ออกกำลังกายน้อยมาก หรือไม่ออกเลย",
@@ -303,6 +330,8 @@ class AppUI:
                                 bd_year,
                                 height,
                                 weight,
+                                height_unit,
+                                weight_unit,
                                 activity,
                             ],
                             outputs=[
@@ -320,7 +349,6 @@ class AppUI:
                             outputs=[login_page, app_page, login_name],
                         )
 
-            # LOGIN BUTTON HOOK
             login_btn.click(
                 fn=self.login_handler,
                 inputs=[login_name],
@@ -334,13 +362,15 @@ class AppUI:
                     bd_year,
                     height,
                     weight,
+                    height_unit,
+                    weight_unit,
                     activity,
                     chart_plot,
                     bmi_out,
                     bmr_out,
                     tdee_out,
-                    popup_food,
-                    popup_info,
+                    gr.HTML(value="", visible=False),  # popup_food
+                    gr.HTML(value="", visible=False),  # popup_info
                 ],
             )
         return demo
