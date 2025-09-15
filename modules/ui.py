@@ -59,6 +59,7 @@ class AppUI:
         )
         return fig
 
+    # --- ANNOUNCEMENT ---
     @staticmethod
     def _announcement(msg, success=True):
         color_bg = "#e0ffe0" if success else "#ffe4e4"
@@ -76,9 +77,6 @@ class AppUI:
             z-index:9999;
             font-weight:bold;
         '>{msg}</div>
-        <script>
-            setTimeout(()=>{{document.getElementById('popup-banner').remove()}}, 3000);
-        </script>
         """
         return gr.update(value=html_content, visible=True)
 
@@ -170,15 +168,21 @@ class AppUI:
         )
 
     # --- ADD FOOD ---
-    def add_food_handler(self, name, food_name):
-        success, msg = self.food_manager.add_food(name, food_name)
+    def add_food_handler(self, name, food_name, quantity):
+        msg = ""
+        success = True
+        for _ in range(int(quantity)):
+            s, m = self.food_manager.add_food(name, food_name)
+            msg += m + "<br>"
+            if not s:
+                success = False
         record = self.personal_manager.load_last_entry(name)
         chart = self.chart_manager.build_last_7_days_chart(name)
         bmi = record.get("bmi", 0)
         bmr = record.get("bmr", 0)
         tdee = record.get("tdee", 0)
         return (
-            self._announcement(msg, success),
+            AppUI._announcement(msg, success),
             chart,
             bmi,
             bmr,
@@ -209,16 +213,27 @@ class AppUI:
                             bmi_out = gr.Number(label="BMI", interactive=False)
                             bmr_out = gr.Number(label="BMR", interactive=False)
                             tdee_out = gr.Number(label="TDEE", interactive=False)
-                        food_dropdown = gr.Dropdown(
-                            choices=self.food_manager.get_food_list(),
-                            label="Select Food",
-                        )
-                        add_btn = gr.Button("Add Food", variant="primary")
-                        popup_food = gr.HTML(value="")  # define once
 
+                        # --- Food selection ---
+                        with gr.Row():
+                            food_dropdown = gr.Dropdown(
+                                choices=self.food_manager.get_food_list(),
+                                label="Select Food",
+                            )
+                            food_quantity = gr.Slider(
+                                minimum=1,
+                                maximum=10,
+                                value=1,
+                                step=1,
+                                label="Quantity (times to add)",
+                            )
+                        add_btn = gr.Button("Add Food", variant="primary")
+                        popup_food = gr.HTML(value="", visible=False)  # popup
+
+                        # Hook add_btn
                         add_btn.click(
                             fn=self.add_food_handler,
-                            inputs=[name_box, food_dropdown],
+                            inputs=[name_box, food_dropdown, food_quantity],
                             outputs=[
                                 popup_food,
                                 chart_plot,
@@ -226,6 +241,14 @@ class AppUI:
                                 bmr_out,
                                 tdee_out,
                             ],
+                        )
+
+                        # Auto-hide popup after 2 seconds
+                        popup_food.change(
+                            fn=lambda x: gr.update(visible=False),
+                            inputs=[popup_food],
+                            outputs=[popup_food],
+                            queue=False,
                         )
 
                     # PERSONAL INFO TAB
@@ -268,7 +291,7 @@ class AppUI:
                             label="Activity Level",
                         )
                         save_btn = gr.Button("💾 Save Info")
-                        popup_info = gr.HTML(value="")  # define once
+                        popup_info = gr.HTML(value="", visible=False)
 
                         save_btn.click(
                             fn=self.save_info_handler,
@@ -316,7 +339,7 @@ class AppUI:
                     bmi_out,
                     bmr_out,
                     tdee_out,
-                    popup_food,  # use component variable
+                    popup_food,
                     popup_info,
                 ],
             )

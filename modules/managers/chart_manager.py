@@ -43,14 +43,26 @@ class ChartManager:
         # Process food intake
         if not cal_df.empty:
             cal_df["date"] = cal_df["time"].dt.date
+            # Sum calories
             food_summary = cal_df.groupby(["date", "food"])["cal"].sum().reset_index()
             food_pivot = food_summary.pivot(
                 index="date", columns="food", values="cal"
             ).fillna(0)
+
+            # Count occurrences
+            food_count = (
+                cal_df.groupby(["date", "food"]).size().reset_index(name="count")
+            )
+            count_pivot = food_count.pivot(
+                index="date", columns="food", values="count"
+            ).fillna(0)
         else:
             food_pivot = pd.DataFrame(index=date_range)
+            count_pivot = pd.DataFrame(index=date_range)
 
         food_pivot = food_pivot.reindex(date_range, fill_value=0)
+        count_pivot = count_pivot.reindex(date_range, fill_value=0)
+
         total_intake = food_pivot.sum(axis=1)
 
         # Process TDEE
@@ -73,7 +85,10 @@ class ChartManager:
                     y=food_pivot[food_name],
                     name=food_name,
                     marker_color=colors[i % len(colors)],
-                    hovertemplate="%{y} kcal of " + food_name + "<extra></extra>",
+                    hovertemplate=[
+                        f"{food_pivot.loc[d, food_name]} kcal of {food_name} ({int(count_pivot.loc[d, food_name])} times)<extra></extra>"
+                        for d in date_range
+                    ],
                 )
             )
 
@@ -88,7 +103,7 @@ class ChartManager:
                 y=tdee_series,
                 mode="lines+markers",
                 name="TDEE",
-                line=dict(color="gray", width=2),  # optional line connecting points
+                line=dict(color="gray", width=2),
                 marker=dict(size=10, color=tdee_colors, symbol="circle"),
                 hovertemplate="TDEE: %{y} kcal<extra></extra>",
             )
