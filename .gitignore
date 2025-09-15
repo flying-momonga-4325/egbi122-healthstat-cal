@@ -46,3 +46,5 @@ env/
 # Others
 *.DS_Store
 
+# Temp files from VS Code Code Runner
+tempCodeRunnerFile.py
