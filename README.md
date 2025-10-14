@@ -8,6 +8,9 @@ This project is part of **EGBI122** as a mini-project by:
 
 ---
 
+![fig1](./figs/login.png)
+![fig2](./figs/user_config.png)
+![fig3](./figs/graph.png)
 ## Features
 
 - **Personal Info Management:** Store and manage your personal health data in CSV files.  
@@ -48,8 +51,8 @@ This project is part of **EGBI122** as a mini-project by:
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/USERNAME/REPO_NAME.git
-cd REPO_NAME
+git clone https://github.com/flying-momonga-4325/egbi122-healthstat-cal
+cd egbi122-healthstat-cal
 ```
 
 2. Create a virtual environment (optional but recommended):
