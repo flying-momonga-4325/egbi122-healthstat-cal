@@ -26,6 +26,7 @@ This project is part of **EGBI122** as a mini-project by:
 ```
 ├── LICENSE.md               # License file
 ├── app.py                   # Main application file
+├── requirement.txt          # Necessary external libraries
 ├── data                     # CSV files for storing data
 │   ├── cal_rec.csv
 │   ├── food_data.csv
