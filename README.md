@@ -24,8 +24,10 @@ This project is part of **EGBI122** as a mini-project by:
 ## Project Structure
 
 ```
+├── README.md                # README.md file
 ├── LICENSE.md               # License file
 ├── app.py                   # Main application file
+├── app__.ipynb              # .ipynb application file
 ├── requirement.txt          # Necessary external libraries
 ├── data                     # CSV files for storing data
 │   ├── cal_rec.csv
